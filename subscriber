@@ -1,0 +1,82 @@
+<?php
+/*
+Plugin Name: subscriber
+Description: Subscriber plugin .
+Version: 1.0
+Author: Sunil Kumar
+Author URL: http://triusinfotech.com
+*/
+
+
+function subscriber_activate() {
+global $wpdb;
+global $keyword_rankerdb;
+$keyword_rankerdb = "1.0";
+$table_name = $wpdb->prefix . "subscriber";
+
+if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
+    $sql = 'CREATE TABLE ' . $table_name . ' (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    sub_name varchar(50) NOT NULL,
+	sub_email varchar(50) NOT NULL,
+	sub_insert varchar(50) NOT NULL,
+	sub_modify varchar(50) NOT NULL,
+	sub_delete varchar(50) NOT NULL,
+    PRIMARY KEY (id))';
+    //reference to upgrade.php file
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+    //update_option('keyword_ranker_version',$keyword_rankerdb);
+}
+//action hook for plugin activation
+
+}
+//end of plugin installation
+register_activation_hook( __FILE__, 'subscriber_activate' );
+
+
+/****** data inseration to database  **********/
+
+
+function form_data(){ 
+
+	if (isset($_POST['submit']) && $_POST['submit'] == 'submit'){
+	$sub_name = $_POST['sub_name'];
+	$sub_email = $_POST['sub_email'];	
+		global $wpdb;
+		$wpdb->insert(
+				"wp_subscriber", array(
+					"sub_name" => $sub_name, 
+					"sub_email" => $sub_email,
+				));
+		if($wpdb){
+			echo "<script type='text/javascript'>";
+				echo "document.write('Thank you for your subscription! Confirmation e-mail was sent to your e-mail address!')";
+			echo "</script>";
+		}
+	}		
+?>
+ <div class="wrap">
+	 <form id ="subscribe" name="subscriber" method="post">	
+	    <table class="widefat">
+		<tbody>
+		   <tr>
+			 <td><input type="text" name="sub_name" value="" placeholder="Your Name" required/></td>
+			</tr>
+			<tr>
+			 <td><input type="email" name="sub_email" value="" placeholder="Your E-mail"  required/></td>
+			 </tr>
+			 <tr>
+			 <td><input type="submit" name="submit" value="submit" /></td>
+		   </tr>
+		</tbody>
+		</table>
+  </form>
+ </div>
+<?php
+
+ } 
+ add_shortcode ( 'subscriber', 'form_data' );
+ 
+include ('subscriber_paginate.php');
+?>
